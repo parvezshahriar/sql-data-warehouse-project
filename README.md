@@ -124,15 +124,3 @@ Once the Gold views are materialized, the data is ready for the business:
 
 ---
 
-## Repository Structure
-```text
-├── docs/
-│   ├── data_architecture.png     # Architecture diagram
-│   └── DATA_CATALOG.md           # Detailed Gold layer schema definitions
-├── src/
-│   ├── ingestion/                # PostgreSQL COPY scripts for Bronze load
-│   ├── transformation/           # SQL scripts for Silver layer standardization
-│   └── modeling/                 # SQL scripts for the Gold Star Schema Views
-├── tests/                        # SQL scripts for schema validation and data quality checks
-└── README.md                     # Project documentation
-```
