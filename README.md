@@ -7,7 +7,7 @@ The final Gold layer is optimized for seamless consumption by Microsoft Power BI
 
 ## Prerequisites
 *   **PostgreSQL:** The core relational database engine for all data warehouse layers.
-*   **SQL Client (e.g., psql, pgAdmin, DBeaver):** For executing database commands and scripts.
+*   **SQL Client (pgAdmin):** For executing database commands and scripts.
 *   **Git:** For version control and documentation of the data model.
 *   Access to the source CRM and ERP file directories (CSV drop locations accessible by the Postgres server).
 *   Access to the target Data Warehouse environment.
@@ -48,8 +48,7 @@ The Silver layer acts as the enterprise source of truth, standardizing data acro
 1.  **Cleanse:** Filter out malformed records and handle null values using SQL `WHERE` and `COALESCE` clauses.
 2.  **Standardize & Normalize:** Align data types, standardize date formats, and resolve schema discrepancies between the CRM and ERP systems.
 3.  **Enrich:** Generate derived columns necessary for downstream processing.
-4.  **Load:** Insert the cleaned data into the **Silver Layer** tables (e.g., `crm_sales_details`, `crm_cust_info`, `erp_cust_az12`) via `INSERT INTO ... SELECT` statements.
-
+4.  **Load:** Insert the cleaned data into the **Silver Layer** tables 
 ```mermaid
 graph LR
     subgraph Bronze Layer
@@ -82,7 +81,7 @@ The Gold layer introduces business logic and structures the data for analytical 
     *   `gold.fact_sales` (Transactional metrics)
     *   `gold.dim_customers` (Customer attributes)
     *   `gold.dim_products` (Product hierarchy)
-4.  **Deploy:** Instantiate these models as PostgreSQL `VIEW`s or `MATERIALIZED VIEW`s within the Data Warehouse schema.
+4.  **Deploy:** Instantiate these models as PostgreSQL `VIEW`s within the Data Warehouse schema.
 
 ```mermaid
 graph TD
@@ -117,11 +116,7 @@ graph TD
     style G fill:#f0a30a,stroke:#BD7000,color:#000
 ```
 
-### Step 4: Version Control and Documentation
-*   Commit all SQL scripts (ingestion `COPY` scripts, Silver transformations, and Gold views) to the Git repository.
-*   Update the Data Catalog (see `DATA_CATALOG.md`) if any schema changes occur in the Gold layer.
-
-### Step 5: Data Consumption
+### Step 4: Data Consumption
 Once the Gold views are materialized, the data is ready for the business:
 *   **BI and Reporting:** Connect Microsoft Power BI directly to the PostgreSQL Gold views to refresh automated dashboards.
 *   **Ad-Hoc Querying:** Analysts can query the Star Schema using standard SQL via any PostgreSQL client.
