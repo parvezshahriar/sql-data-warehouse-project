@@ -1,11 +1,11 @@
 # Enterprise Sales Data Warehouse Pipeline
 
-## 📖 Overview
+## Overview
 This repository contains the data engineering pipeline for our Enterprise Sales Data Warehouse. The architecture follows a robust Medallion pattern (Bronze, Silver, Gold), extracting raw data from internal CRM and ERP systems and transforming it into a business-ready Star Schema using **PostgreSQL**. 
 
 The final Gold layer is optimized for seamless consumption by Microsoft Power BI for reporting, Google BigQuery for ad-hoc SQL analysis, and downstream Machine Learning models.
 
-## 🛠 Prerequisites
+## Prerequisites
 *   **PostgreSQL:** The core relational database engine for all data warehouse layers.
 *   **SQL Client (e.g., psql, pgAdmin, DBeaver):** For executing database commands and scripts.
 *   **Git:** For version control and documentation of the data model.
@@ -14,7 +14,7 @@ The final Gold layer is optimized for seamless consumption by Microsoft Power BI
 
 ---
 
-## 🚀 Step-by-Step Execution Process
+## Step-by-Step Execution Process
 
 ### Step 1: Data Ingestion (Source to Bronze)
 The first phase involves extracting raw data directly from the source systems without applying any transformations.
@@ -129,7 +129,7 @@ Once the Gold views are materialized, the data is ready for the business:
 
 ---
 
-## 🗂 Repository Structure
+## Repository Structure
 ```text
 ├── docs/
 │   ├── data_architecture.png     # Architecture diagram
