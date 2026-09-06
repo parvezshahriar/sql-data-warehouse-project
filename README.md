@@ -1,39 +1,39 @@
 # Enterprise Sales Data Warehouse Pipeline
 
-## Overview
-This repository contains the data engineering pipeline for our Enterprise Sales Data Warehouse. The architecture follows a robust Medallion pattern (Bronze, Silver, Gold), extracting raw data from internal CRM and ERP systems and transforming it into a business-ready Star Schema. 
+## 📖 Overview
+This repository contains the data engineering pipeline for our Enterprise Sales Data Warehouse. The architecture follows a robust Medallion pattern (Bronze, Silver, Gold), extracting raw data from internal CRM and ERP systems and transforming it into a business-ready Star Schema using **PostgreSQL**. 
 
 The final Gold layer is optimized for seamless consumption by Microsoft Power BI for reporting, Google BigQuery for ad-hoc SQL analysis, and downstream Machine Learning models.
 
-## Prerequisites
-*   **Python 3.x:** For orchestrating data ingestion and validation scripts.
-*   **SQL:** For executing transformations and building the Gold layer views.
+## 🛠 Prerequisites
+*   **PostgreSQL:** The core relational database engine for all data warehouse layers.
+*   **SQL Client (e.g., psql, pgAdmin, DBeaver):** For executing database commands and scripts.
 *   **Git:** For version control and documentation of the data model.
-*   Access to the source CRM and ERP file directories (CSV drop locations).
+*   Access to the source CRM and ERP file directories (CSV drop locations accessible by the Postgres server).
 *   Access to the target Data Warehouse environment.
 
 ---
 
-##  Step-by-Step Execution Process
+## 🚀 Step-by-Step Execution Process
 
 ### Step 1: Data Ingestion (Source to Bronze)
 The first phase involves extracting raw data directly from the source systems without applying any transformations.
 1.  **Extract:** Source systems (CRM and ERP) export transactional and master data as CSV files into designated secure folders.
-2.  **Load:** Execute the Python ingestion scripts to run a full batch load (truncate and insert) into the **Bronze Layer**.
-3.  **Validate:** The pipeline performs automated schema validation and data completeness checks to ensure the raw load matches the expected source format.
+2.  **Load:** Execute PostgreSQL `COPY` commands (or `\copy` via psql) to run a full batch load (truncate and insert) directly into the **Bronze Layer** raw tables.
+3.  **Validate:** The pipeline performs automated SQL-based schema validation and data completeness checks to ensure the raw load matches the expected source format.
 
 ```mermaid
 graph LR
     subgraph Source Systems
-        A[CRM System <br/> CSV File] -->|Extract| C(Data Ingestion Pipeline)
+        A[CRM System <br/> CSV File] -->|Extract| C(PostgreSQL COPY Command)
         B[ERP System <br/> CSV File] -->|Extract| C
     end
 
     subgraph Data Engineering
-        C -->|Code & Validate| D{Completeness & <br/> Schema Check}
+        C -->|Execute & Validate| D{SQL Completeness & <br/> Schema Check}
     end
 
-    subgraph Data Warehouse
+    subgraph PostgreSQL Data Warehouse
         D -->|Full Load / Batch| E[(Bronze Layer <br/> Raw Tables)]
     end
 
@@ -44,22 +44,22 @@ graph LR
 ```
 
 ### Step 2: Data Transformation (Bronze to Silver)
-The Silver layer acts as the enterprise source of truth, standardizing data across disparate systems.
-1.  **Cleanse:** Filter out malformed records and handle null values.
+The Silver layer acts as the enterprise source of truth, standardizing data across disparate systems using SQL.
+1.  **Cleanse:** Filter out malformed records and handle null values using SQL `WHERE` and `COALESCE` clauses.
 2.  **Standardize & Normalize:** Align data types, standardize date formats, and resolve schema discrepancies between the CRM and ERP systems.
 3.  **Enrich:** Generate derived columns necessary for downstream processing.
-4.  **Load:** Insert the cleaned data into the **Silver Layer** tables (e.g., `crm_sales_details`, `crm_cust_info`, `erp_cust_az12`).
+4.  **Load:** Insert the cleaned data into the **Silver Layer** tables (e.g., `crm_sales_details`, `crm_cust_info`, `erp_cust_az12`) via `INSERT INTO ... SELECT` statements.
 
 ```mermaid
 graph LR
     subgraph Bronze Layer
-        A[(crm_sales_details)] --> D(Check Quality)
+        A[(crm_sales_details)] --> D(SQL Quality Checks)
         B[(crm_cust_info)] --> D
         C[(erp_cust_az12)] --> D
     end
 
     subgraph Data Engineering
-        D --> E(Write Data Transformations)
+        D --> E(Write SQL Transformations)
         E --> F(Insert into Silver)
     end
 
@@ -82,7 +82,7 @@ The Gold layer introduces business logic and structures the data for analytical 
     *   `gold.fact_sales` (Transactional metrics)
     *   `gold.dim_customers` (Customer attributes)
     *   `gold.dim_products` (Product hierarchy)
-4.  **Deploy:** Instantiate these models as Views within the Data Warehouse.
+4.  **Deploy:** Instantiate these models as PostgreSQL `VIEW`s or `MATERIALIZED VIEW`s within the Data Warehouse schema.
 
 ```mermaid
 graph TD
@@ -91,7 +91,7 @@ graph TD
     end
 
     subgraph Modeling Pipeline
-        A --> B(Build Business Model)
+        A --> B(Build Business Model in SQL)
         B --> C(Define Fact & Dimensions)
         C --> D(Rename & Calculate Logic <br/> e.g., sales = qty * price)
     end
@@ -118,13 +118,13 @@ graph TD
 ```
 
 ### Step 4: Version Control and Documentation
-*   Commit all transformation SQL scripts and Python ingestion code to the Git repository.
+*   Commit all SQL scripts (ingestion `COPY` scripts, Silver transformations, and Gold views) to the Git repository.
 *   Update the Data Catalog (see `DATA_CATALOG.md`) if any schema changes occur in the Gold layer.
 
 ### Step 5: Data Consumption
 Once the Gold views are materialized, the data is ready for the business:
-*   **BI and Reporting:** Connect Microsoft Power BI directly to the Gold views to refresh automated dashboards.
-*   **Ad-Hoc Querying:** Analysts can query the Star Schema using standard SQL.
+*   **BI and Reporting:** Connect Microsoft Power BI directly to the PostgreSQL Gold views to refresh automated dashboards.
+*   **Ad-Hoc Querying:** Analysts can query the Star Schema using standard SQL via any PostgreSQL client.
 *   **Advanced Analytics:** Data scientists can pull clean, historical feature sets for machine learning models.
 
 ---
@@ -135,9 +135,9 @@ Once the Gold views are materialized, the data is ready for the business:
 │   ├── data_architecture.png     # Architecture diagram
 │   └── DATA_CATALOG.md           # Detailed Gold layer schema definitions
 ├── src/
-│   ├── ingestion/                # Extraction and Bronze load scripts
-│   ├── transformation/           # Silver layer standardization scripts
-│   └── modeling/                 # SQL views for the Gold Star Schema
-├── tests/                        # Schema validation and data quality checks
+│   ├── ingestion/                # PostgreSQL COPY scripts for Bronze load
+│   ├── transformation/           # SQL scripts for Silver layer standardization
+│   └── modeling/                 # SQL scripts for the Gold Star Schema Views
+├── tests/                        # SQL scripts for schema validation and data quality checks
 └── README.md                     # Project documentation
 ```
